@@ -160,9 +160,8 @@ session_start();
 					<?php
 				}
 			?>
-			</form>
 			</div>
-
+			</form>
 		</div>
 	</div>
 </div>
@@ -181,155 +180,238 @@ session_start();
 			<!-- Body / Form -->
 			<div class="modal-body">
 			<form action="" method="post" enctype="multipart/form-data">
-				<label for="sel2" class="form-label">Pilih kartu:</label>
-				<select class="form-select" id="kartu2" name="pilih_kartu_2">
-					<option value="">--Pilih kartu--</option>
-					<?php 
-					$sqlkartu = mysqli_query($connect, "SELECT * FROM tb_kartu") or die(mysqli_error($connect));
-					while ($data = mysqli_fetch_array($sqlkartu)):;
-					?>
-						<option value="<?php echo $data['id_kartu'];?>"><?php echo $data['nama_kartu'];?></option>
-					<?php 
-						endwhile;
-					?>
-				</select>
-				<br>
-			</div>
+					<label for="sel2" class="form-label">Pilih kartu:</label>
+					<select class="form-select" id="kartu2" name="pilih_kartu_2">
+						<option value="">--Pilih kartu--</option>
+						<?php 
+						$sqlkartu = mysqli_query($connect, "SELECT * FROM tb_kartu") or die(mysqli_error($connect));
+						while ($data = mysqli_fetch_array($sqlkartu)):;
+						?>
+							<option value="<?php echo $data['id_kartu'];?>"><?php echo $data['nama_kartu'];?></option>
+						<?php 
+							endwhile;
+						?>
+					</select>
+					<br>
+				</div>
 
-			<!-- Footer -->
-			<div class="modal-footer">
-			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-			<?php
-				if($user['status'] == "1"){
-					?>
-					<button type="submit" class="btn btn-danger" name="tap_out_tp">Tap Out</button>
-					<?php
-				} else if($user['status'] == "0"){
-					?>
-					<button type="submit" class="btn btn-success" name="tap_in_tp">Tap In</button>
-					<?php
-				}
-			?>
+				<!-- Footer -->
+				<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+				<?php
+					if($user['status'] == "2"){
+						?>
+						<button type="submit" class="btn btn-danger" name="tap_out_tp">Keluar Bus</button>
+						<?php
+					} else if($user['status'] == "0"){
+						?>
+						<button type="submit" class="btn btn-success" name="tap_in_tp">Masuk Bus</button>
+						<?php
+					}
+				?>
+				</div>
 			</form>
-			</div>
-
 		</div>
 	</div>
 </div>
 
 <?php
-	//variabel untuk form transaksi kartu
-	$kartu1 = @$_POST['pilih_kartu_1'];
-	$kartu2 = @$_POST['pilih_kartu_2'];
-	
-	$tap_in_tj = @$_POST['tap_in_tj'];
-	$tap_in_tp = @$_POST['tap_in_tp'];
 
-	$tap_out_tj = @$_POST['tap_out_tj'];
-	$tap_out_tp = @$_POST['tap_out_tp'];
-	
-	if($tap_in_tj){
-		$querykartu = mysqli_query($connect, "SELECT * FROM tb_kartu WHERE id_kartu='$kartu1'") or die(mysqli_error($connect));
-		$datakartu = mysqli_fetch_assoc($querykartu);
+$kartu1 = $_POST['pilih_kartu_1'] ?? '';
+$kartu2 = $_POST['pilih_kartu_2'] ?? '';
+/*echo "<pre>";
+print_r($_POST);
+echo "</pre>";*/
+/* =========================   TAP IN TRANS JAKARTA  ========================= */
+if(isset($_POST['tap_in_tj'])){
 
-		// Proses tap in Trans Jakarta
-		$saldo = $datakartu['saldo'];
-		if($saldo < 3500){
-			echo "<script>alert('Saldo tidak cukup untuk masuk ke halte	Trans Jakarta. Silakan top up kartu Anda.');</script>";
-			exit;
-		} else {
-			// Simpan riwayat transaksi Trans Jakarta
-			$id_trx = uniqid("TJ-");
-			mysqli_query($connect, "INSERT INTO tb_riwayat_trx_tj (id_trx, id_kartu, jenis_trx, saldo_awal, waktu_trx_awal) VALUES ('$id_trx', '$kartu1', 'Proses', '$saldo', NOW())");
+	$q = mysqli_query($connect,"SELECT * FROM tb_kartu WHERE id_kartu='$kartu1'");
+	$datakartu = mysqli_fetch_assoc($q);
 
-			mysqli_query($connect, "UPDATE tb_user SET status='1'");
-			echo "<script>alert('Berhasil masuk ke halte Trans Jakarta dengan kartu $datakartu[nama_kartu]');
-			window.location='index.php';</script>";
-		}
+	$saldo = $datakartu['saldo'];
+	$nama_kartu = $datakartu['nama_kartu'];
+
+	// Minimal saldo hanya untuk validasi masuk
+	if($saldo < 3500){
+	echo "<script>alert('Saldo minimal tidak cukup untuk masuk halte');</script>";
+	} else {
+	$id_trx = uniqid("TJ-");
+	mysqli_query($connect,
+		"INSERT INTO tb_riwayat_trx_tj (id_trx,id_kartu,jenis_trx,saldo_awal,waktu_trx_awal)
+		VALUES ('$id_trx','$kartu1','Proses','$saldo',NOW())");
+	mysqli_query($connect,
+		"UPDATE tb_user 
+		SET status='1', id_kartu='$kartu1'
+		WHERE id_user='1'");
+	echo "<script>
+		alert('Berhasil Tap In Trans Jakarta - $nama_kartu');
+		window.location='';
+	</script>";
+	}
+}
+
+/* =========================   TAP IN TRANS PAKUAN  ========================= */
+if(isset($_POST['tap_in_tp'])){
+
+	$q = mysqli_query($connect,"SELECT * FROM tb_kartu WHERE id_kartu='$kartu2'");
+	$datakartu = mysqli_fetch_assoc($q);
+
+	$saldo = $datakartu['saldo'];
+	$nama_kartu = $datakartu['nama_kartu'];
+
+	if($saldo < 4900){
+	echo "<script>alert('Saldo tidak cukup');</script>";
+	} else {
+	$saldo_baru = $saldo - 4900;
+	mysqli_query($connect,
+		"UPDATE tb_kartu 
+		SET saldo='$saldo_baru' 
+		WHERE id_kartu='$kartu2'");
+
+	/* =========================     UPDATE RIWAYAT TP   	========================= */
+	$id_trx = uniqid("TP-");
+
+	mysqli_query($connect,
+		"INSERT INTO tb_riwayat_trx_tp
+		(id_trx,id_kartu,saldo_awal,saldo_akhir,waktu_trx)
+		VALUES
+		('$id_trx','$kartu2','$saldo','$saldo_baru',NOW())");
+
+	/* =========================     UPDATE SALDO KARTU  	========================= */
+	mysqli_query($connect,
+	"UPDATE tb_kartu 
+		SET saldo='$saldo_baru' 
+		WHERE id_kartu='$kartu2'");
+
+	/* =========================     RIWAYAT KARTU (BANK)  	========================= */
+	$bank = $datakartu['bank'];
+	$id_trx_kartu = uniqid();
+
+	if($bank=="BBRI"){
+		$tabel="tb_riwayat_kartu_bri";
+	} else if($bank=="BBCA"){
+		$tabel="tb_riwayat_kartu_bca";
+	} else if($bank=="BMRI"){
+		$tabel="tb_riwayat_kartu_mri";
+	} else if($bank=="BDKI"){
+		$tabel="tb_riwayat_kartu_dki";
 	}
 
-	if($tap_in_tp){
-		$querykartu = mysqli_query($connect, "SELECT * FROM tb_kartu WHERE id_kartu='$kartu2'") or die(mysqli_error($connect));
-		$datakartu = mysqli_fetch_assoc($querykartu);
-		// Proses tap in Trans Pakuan
-		$saldo = $datakartu['saldo'];
+	mysqli_query($connect,
+	"INSERT INTO $tabel
+		(id_trx,id_merchant,id_kartu,jenis_trx,
+		saldo_awal,nominal_trx,saldo_akhir,waktu_trx)
+		VALUES
+		('$id_trx_kartu','1','$kartu2','Out',
+		'$saldo','$tarif','$saldo_baru',NOW())");
 
-		if($saldo < 4900){
-			echo "<script>alert('Saldo tidak cukup untuk masuk ke bus Trans Pakuan. Silakan top up kartu Anda.');</script>";
-			exit;
-		} else {
-			$saldo_baru = $saldo - 4900; // Tarif
-			mysqli_query($connect, "UPDATE tb_kartu SET saldo='$saldo_baru' WHERE id_kartu='$kartu2'");
+	mysqli_query($connect,
+		"UPDATE tb_user 
+		SET status='2', id_kartu='$kartu2'
+		WHERE id_user='1'");
 
-			// Simpan riwayat transaksi Trans Pakuan
-			$id_trx = uniqid("TP-");
-			mysqli_query($connect, "INSERT INTO tb_riwayat_trx_tp (id_trx, id_kartu, jenis_trx, saldo_awal, waktu_trx_awal) VALUES ('$id_trx', '$kartu2', 'Proses', '$saldo', NOW())");
+	echo "<script>
+		alert('Berhasil naik Trans Pakuan - $nama_kartu');
+		window.location='';
+	</script>";
+	}
+}
 
-			// Simpan riwayat transaksi kartu berdasarkan jenis bank
-			$bank = $datakartu['bank'];
-			if($bank == "BBRI"){
-				$id_trx_kartu = uniqid();
-				mysqli_query($connect, "INSERT INTO tb_riwayat_kartu_bri (id_trx, id_merchant, id_kartu, jenis_trx, saldo_awal, nominal_trx, saldo_akhir, waktu_trx) VALUES ('$id_trx_kartu', '2', '$kartu2', 'Out', '$saldo', 4900, '$saldo_baru', NOW())");
-			} else if($bank == "BBCA"){
-				$id_trx_kartu = uniqid();
-				mysqli_query($connect, "INSERT INTO tb_riwayat_kartu_bca (id_trx, id_merchant, id_kartu, jenis_trx, saldo_awal, nominal_trx, saldo_akhir, waktu_trx) VALUES ('$id_trx_kartu', '2', '$kartu2', 'Out', '$saldo', 4900, '$saldo_baru', NOW())");
-			} else if($bank == "BMRI"){
-				$id_trx_kartu = uniqid();
-				mysqli_query($connect, "INSERT INTO tb_riwayat_kartu_mri (id_trx, id_merchant, id_kartu, jenis_trx, saldo_awal, nominal_trx, saldo_akhir, waktu_trx) VALUES ('$id_trx_kartu', '2', '$kartu2', 'Out', '$saldo', 4900, '$saldo_baru', NOW())");
-			} else if($bank == "BDKI"){
-				$id_trx_kartu = uniqid();
-				mysqli_query($connect, "INSERT INTO tb_riwayat_kartu_dki (id_trx, id_merchant, id_kartu, jenis_trx, saldo_awal, nominal_trx, saldo_akhir, waktu_trx) VALUES ('$id_trx_kartu', '2', '$kartu2', 'Out', '$saldo', 4900, '$saldo_baru', NOW())");
-			}
 
-			mysqli_query($connect, "UPDATE tb_user SET status='2'");
-			echo "<script>alert('Berhasil masuk ke bus Trans Pakuan dengan kartu $datakartu[nama_kartu]. Saldo tersisa: Rp $saldo_baru');
-			window.location='index.php';</script>";
-		}
+/* =========================   TAP OUT TJ   ========================= */
+if(isset($_POST['tap_out_tj'])){
+
+	$q = mysqli_query($connect,
+		"SELECT * FROM tb_kartu WHERE id_kartu='$kartu1'");
+	$datakartu = mysqli_fetch_assoc($q);
+
+	$saldo = $datakartu['saldo'];
+	$nama_kartu = $datakartu['nama_kartu'];
+
+	$tarif = 3500;
+
+	if($saldo < $tarif){
+
+	echo "<script>alert('Saldo tidak cukup saat Tap Out');</script>";
+	exit;
 	}
 
-	if($tap_out_tj){
-		$querykartu = mysqli_query($connect, "SELECT * FROM tb_kartu WHERE id_kartu='$kartu1'") or die(mysqli_error($connect));
-		$datakartu = mysqli_fetch_assoc($querykartu);
+	$saldo_baru = $saldo - $tarif;
 
-		// Proses tap in Trans Jakarta
-		$saldo = $datakartu['saldo'];
-		$saldo_baru = $saldo - 3500; // Tarif
-		mysqli_query($connect, "UPDATE tb_kartu SET saldo='$saldo_baru' WHERE id_kartu='$kartu1'");
+	/* =========================     UPDATE SALDO KARTU   ========================= */
+	mysqli_query($connect,
+	"UPDATE tb_kartu 
+		SET saldo='$saldo_baru' 
+		WHERE id_kartu='$kartu1'");
 
-		// Simpan riwayat transaksi Trans Jakarta
-		$querytrx = mysqli_query($connect, "SELECT * FROM tb_riwayat_trx_tj WHERE id_kartu='$kartu1' AND jenis_trx='Proses'") or die(mysqli_error($connect));
-		$data_trx = mysqli_fetch_assoc($querytrx);
-		$id_trx = $data_trx['id_trx_tj'];
-		mysqli_query($connect, "UPDATE tb_riwayat_trx_tj SET jenis_trx='Selesai', waktu_trx_akhir=NOW() WHERE id_trx_tj='$id_trx'");
+	/* =========================     UPDATE RIWAYAT TJ   ========================= */
+	$qtrx = mysqli_query($connect,
+	"SELECT * FROM tb_riwayat_trx_tj
+		WHERE id_kartu='$kartu1'
+		AND jenis_trx='Proses'
+		ORDER BY waktu_trx_awal DESC
+		LIMIT 1");
 
-		// Simpan riwayat transaksi kartu berdasarkan jenis bank
-		$bank = $datakartu['bank'];
-		if($bank == "BBRI"){
-			$id_trx_kartu = uniqid();
-			mysqli_query($connect, "INSERT INTO tb_riwayat_kartu_bri (id_trx, id_merchant, id_kartu, jenis_trx, saldo_awal, nominal_trx, saldo_akhir, waktu_trx) VALUES ('$id_trx_kartu', '1', '$kartu1', 'Out', '$saldo', 3500, '$saldo_baru', NOW())");
-		} else if($bank == "BBCA"){
-			$id_trx_kartu = uniqid();
-			mysqli_query($connect, "INSERT INTO tb_riwayat_kartu_bca (id_trx, id_merchant, id_kartu, jenis_trx, saldo_awal, nominal_trx, saldo_akhir, waktu_trx) VALUES ('$id_trx_kartu', '1', '$kartu1', 'Out', '$saldo', 3500, '$saldo_baru', NOW())");
-		} else if($bank == "BMRI"){
-			$id_trx_kartu = uniqid();
-			mysqli_query($connect, "INSERT INTO tb_riwayat_kartu_mri (id_trx, id_merchant, id_kartu, jenis_trx, saldo_awal, nominal_trx, saldo_akhir, waktu_trx) VALUES ('$id_trx_kartu', '1', '$kartu1', 'Out', '$saldo', 3500, '$saldo_baru', NOW())");
-		} else if($bank == "BDKI"){
-			$id_trx_kartu = uniqid();
-			mysqli_query($connect, "INSERT INTO tb_riwayat_kartu_dki (id_trx, id_merchant, id_kartu, jenis_trx, saldo_awal, nominal_trx, saldo_akhir, waktu_trx) VALUES ('$id_trx_kartu', '1', '$kartu1', 'Out', '$saldo', 3500, '$saldo_baru', NOW())");
-		}
-		
-		mysqli_query($connect, "UPDATE tb_user SET status='0'");
-		echo "<script>alert('Berhasil keluar dari halte Trans Jakarta dengan kartu $datakartu[nama_kartu]. Saldo tersisa: Rp $saldo_baru');
-		window.location='index.php';</script>";
+	$trx = mysqli_fetch_assoc($qtrx);
+	$id_trx = $trx['id_trx'];
+
+	mysqli_query($connect,
+	"UPDATE tb_riwayat_trx_tj
+		SET
+		jenis_trx='Selesai',
+		saldo_akhir='$saldo_baru',
+		waktu_trx_akhir=NOW()
+		WHERE id_trx='$id_trx'");
+
+	/* =========================     RIWAYAT KARTU (BANK)  ========================= */
+	$bank = $datakartu['bank'];
+	$id_trx_kartu = uniqid();
+
+	if($bank=="BBRI"){
+	$tabel="tb_riwayat_kartu_bri";
+	} else if($bank=="BBCA"){
+	$tabel="tb_riwayat_kartu_bca";
+	} else if($bank=="BMRI"){
+	$tabel="tb_riwayat_kartu_mri";
+	} else if($bank=="BDKI"){
+	$tabel="tb_riwayat_kartu_dki";
 	}
 
-	if($tap_out_tp){
-		mysqli_query($connect, "UPDATE tb_user SET status='0'");
-		echo "<script>alert('Berhasil keluar dari bus Trans Pakuan');
-		window.location='index.php';</script>";
+	mysqli_query($connect,
+	"INSERT INTO $tabel
+		(id_trx,id_merchant,id_kartu,jenis_trx,
+		saldo_awal,nominal_trx,saldo_akhir,waktu_trx)
+		VALUES
+		('$id_trx_kartu','1','$kartu1','Out',
+		'$saldo','$tarif','$saldo_baru',NOW())");
+
+	/* =========================     UPDATE STATUS USER  ========================= */
+	mysqli_query($connect,
+	"UPDATE tb_user
+		SET status='0'
+		WHERE id_user='1'");
+
+	echo "<script>
+	alert('Tap Out berhasil. Tarif: Rp $tarif');
+	window.location='';
+	</script>";
 	}
 
+	/* =========================   TAP OUT TP  ========================= */
+	if(isset($_POST['tap_out_tp'])){
+
+	mysqli_query($connect,
+	"UPDATE tb_user 
+		SET status='0' 
+		WHERE id_user='1'");
+
+	echo "<script>
+	alert('Berhasil turun dari bus');
+	window.location='';
+	</script>";
+}
 ?>
+
 
 </body>
 </html>
