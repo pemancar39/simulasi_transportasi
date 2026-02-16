@@ -184,18 +184,13 @@ if(isset($_POST['tap_in_tj'])){
 
 	// Minimal saldo hanya untuk validasi masuk
 	if($saldo < 3500){
-	echo "<script>alert('Saldo minimal tidak cukup untuk masuk halte');</script>";
+	echo "<script>alert('Saldo Anda tidak cukup!');</script>";
 	} else {
 	$id_trx = uniqid("TJ-");
-	mysqli_query($connect,
-		"INSERT INTO tb_riwayat_trx_tj (id_trx,id_kartu,jenis_trx,saldo_awal,waktu_trx_awal)
-		VALUES ('$id_trx','$kartu1','Proses','$saldo',NOW())");
-	mysqli_query($connect,
-		"UPDATE tb_user 
-		SET status='1', id_kartu='$kartu1'
-		WHERE id_user='1'");
+	mysqli_query($connect,"INSERT INTO tb_riwayat_trx_tj (id_trx,id_kartu,jenis_trx,saldo_awal,waktu_trx_awal) VALUES ('$id_trx','$kartu1','Proses','$saldo',NOW())");
+	mysqli_query($connect,"UPDATE tb_user SET status='1', id_kartu='$kartu1' WHERE id_user='1'");
 	echo "<script>
-		alert('Berhasil Tap In Trans Jakarta - $nama_kartu');
+		alert('Berhasil Tap In Trans Jakarta dengan kartu $nama_kartu. Saldo tidak terpotong.');
 		window.location='';
 	</script>";
 	}
@@ -214,25 +209,16 @@ if(isset($_POST['tap_in_tp'])){
 	echo "<script>alert('Saldo tidak cukup');</script>";
 	} else {
 	$saldo_baru = $saldo - 4900;
-	mysqli_query($connect,
-		"UPDATE tb_kartu 
-		SET saldo='$saldo_baru' 
-		WHERE id_kartu='$kartu2'");
+	mysqli_query($connect,"UPDATE tb_kartu SET saldo='$saldo_baru' WHERE id_kartu='$kartu2'");
 
 	/* UPDATE RIWAYAT TP */
 	$id_trx = uniqid("TP-");
 
 	mysqli_query($connect,
-		"INSERT INTO tb_riwayat_trx_tp
-		(id_trx,id_kartu,saldo_awal,saldo_akhir,waktu_trx)
-		VALUES
-		('$id_trx','$kartu2','$saldo','$saldo_baru',NOW())");
+		"INSERT INTO tb_riwayat_trx_tp (id_trx,id_kartu,saldo_awal,saldo_akhir,waktu_trx) VALUES ('$id_trx','$kartu2','$saldo','$saldo_baru',NOW())");
 
 	/* UPDATE SALDO KARTU */
-	mysqli_query($connect,
-	"UPDATE tb_kartu 
-		SET saldo='$saldo_baru' 
-		WHERE id_kartu='$kartu2'");
+	mysqli_query($connect,"UPDATE tb_kartu SET saldo='$saldo_baru' WHERE id_kartu='$kartu2'");
 
 	/* RIWAYAT KARTU (BANK) */
 	$bank = $datakartu['bank'];
@@ -248,21 +234,12 @@ if(isset($_POST['tap_in_tp'])){
 		$tabel="tb_riwayat_kartu_dki";
 	}
 
-	mysqli_query($connect,
-	"INSERT INTO $tabel
-		(id_trx,id_merchant,id_kartu,jenis_trx,
-		saldo_awal,nominal_trx,saldo_akhir,waktu_trx)
-		VALUES
-		('$id_trx_kartu','1','$kartu2','Out',
-		'$saldo','$tarif','$saldo_baru',NOW())");
+	mysqli_query($connect,"INSERT INTO $tabel (id_trx,id_merchant,id_kartu,jenis_trx,saldo_awal,nominal_trx,saldo_akhir,waktu_trx) VALUES ('$id_trx_kartu','1','$kartu2','Out','$saldo','$tarif','$saldo_baru',NOW())");
 
-	mysqli_query($connect,
-		"UPDATE tb_user 
-		SET status='2', id_kartu='$kartu2'
-		WHERE id_user='1'");
+	mysqli_query($connect,"UPDATE tb_user SET status='2', id_kartu='$kartu2' WHERE id_user='1'");
 
 	echo "<script>
-		alert('Berhasil naik Trans Pakuan - $nama_kartu');
+		alert('Berhasil naik bus Trans Pakuan dengan kartu $nama_kartu. Saldo terpotong Rp 4.900,-. Saldo sekarang: Rp ".number_format($saldo_baru, 0, ",", ".")."');
 		window.location='';
 	</script>";
 	}
@@ -278,7 +255,7 @@ if(isset($_POST['tap_out_tj'])){
 	}
 
 	if($user['id_kartu'] != $kartu1){
-		echo "<script>alert('Kartu yang dipilih tidak sesuai dengan kartu yang digunakan saat Tap In');</script>";
+		echo "<script>alert('Kartu yang Anda gunakan ini tidak sesuai dengan kartu yang digunakan saat Tap In');</script>";
 		exit;
 	}
 
@@ -291,67 +268,45 @@ if(isset($_POST['tap_out_tj'])){
 	$tarif = 3500;
 
 	if($saldo < $tarif){
-		echo "<script>alert('Saldo tidak cukup saat Tap Out');</script>";
+		echo "<script>alert('Saldo Anda tidak cukup!');</script>";
 		exit;
 	}
 
 	$saldo_baru = $saldo - $tarif;
 
 	/* UPDATE SALDO KARTU */
-	mysqli_query($connect,
-	"UPDATE tb_kartu 
-		SET saldo='$saldo_baru' 
-		WHERE id_kartu='$kartu1'");
+	mysqli_query($connect,"UPDATE tb_kartu SET saldo='$saldo_baru' WHERE id_kartu='$kartu1'");
 
 	/* UPDATE RIWAYAT TJ */
-	$qtrx = mysqli_query($connect,
-	"SELECT * FROM tb_riwayat_trx_tj
-		WHERE id_kartu='$kartu1'
-		AND jenis_trx='Proses'
-		ORDER BY waktu_trx_awal DESC
-		LIMIT 1");
+	$qtrx = mysqli_query($connect,"SELECT * FROM tb_riwayat_trx_tj WHERE id_kartu='$kartu1'	AND jenis_trx='Proses' ORDER BY waktu_trx_awal DESC	LIMIT 1");
 
 	$trx = mysqli_fetch_assoc($qtrx);
 	$id_trx = $trx['id_trx'];
 
 	mysqli_query($connect,
-	"UPDATE tb_riwayat_trx_tj
-		SET
-		jenis_trx='Selesai',
-		saldo_akhir='$saldo_baru',
-		waktu_trx_akhir=NOW()
-		WHERE id_trx='$id_trx'");
+	"UPDATE tb_riwayat_trx_tj SET jenis_trx='Selesai', saldo_akhir='$saldo_baru', waktu_trx_akhir=NOW()	WHERE id_trx='$id_trx'");
 
 	/* RIWAYAT KARTU (BANK) */
 	$bank = $datakartu['bank'];
 	$id_trx_kartu = uniqid();
 
 	if($bank=="BBRI"){
-	$tabel="tb_riwayat_kartu_bri";
+		$tabel="tb_riwayat_kartu_bri";
 	} else if($bank=="BBCA"){
-	$tabel="tb_riwayat_kartu_bca";
+		$tabel="tb_riwayat_kartu_bca";
 	} else if($bank=="BMRI"){
-	$tabel="tb_riwayat_kartu_mri";
+		$tabel="tb_riwayat_kartu_mri";
 	} else if($bank=="BDKI"){
-	$tabel="tb_riwayat_kartu_dki";
+		$tabel="tb_riwayat_kartu_dki";
 	}
 
-	mysqli_query($connect,
-	"INSERT INTO $tabel
-		(id_trx,id_merchant,id_kartu,jenis_trx,
-		saldo_awal,nominal_trx,saldo_akhir,waktu_trx)
-		VALUES
-		('$id_trx_kartu','1','$kartu1','Out',
-		'$saldo','$tarif','$saldo_baru',NOW())");
+	mysqli_query($connect,"INSERT INTO $tabel (id_trx,id_merchant,id_kartu,jenis_trx,saldo_awal,nominal_trx,saldo_akhir,waktu_trx) VALUES ('$id_trx_kartu','1','$kartu1','Out','$saldo','$tarif','$saldo_baru',NOW())") or die(mysqli_error($connect));
 
 	/* UPDATE STATUS USER  */
-	mysqli_query($connect,
-	"UPDATE tb_user
-		SET status='0', id_kartu=NULL
-		WHERE id_user='1'");
+	mysqli_query($connect,"UPDATE tb_user SET status='0', id_kartu=NULL WHERE id_user='1'");
 
 	echo "<script>
-	alert('Tap Out berhasil. Tarif: Rp $tarif');
+	alert('Tap Out berhasil. Saldo terpotong Rp 3.500,- . Saldo Anda sekarang: Rp ".number_format($saldo_baru, 0, ",", ".")."');
 	window.location='';
 	</script>";
 	}
@@ -360,9 +315,7 @@ if(isset($_POST['tap_out_tj'])){
 	if(isset($_POST['tap_out_tp'])){
 
 	mysqli_query($connect,
-	"UPDATE tb_user 
-		SET status='0', id_kartu=NULL 
-		WHERE id_user='1'");
+	"UPDATE tb_user	SET status='0', id_kartu=NULL WHERE id_user='1'");
 
 	echo "<script>
 	alert('Berhasil turun dari bus');
