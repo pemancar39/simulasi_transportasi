@@ -60,7 +60,7 @@
 				<div class="card-body">
 					<h4 class="card-title">KRL Commuter Line</h4>
 					<p class="card-text">Layanan kereta api komuter yang melayani rute di wilayah Jabodetabek (fitur ini segera hadir)</p>
-					<a href="#" class="btn btn-primary disabled">Masuk Stasiun</a>
+					<a href="#" class="btn btn-primary">Masuk Stasiun</a>
 				</div>
 				<img class="card-img-bottom" src="img/commuter_line.jpg" alt="Foto KRL Commuter Line">
 			</div>
