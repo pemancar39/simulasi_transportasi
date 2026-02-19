@@ -469,58 +469,49 @@ if(isset($_POST['tap_out_krl'])){
 	$id_stasiun_asal = $datatrip['id_stasiun'];
 
 	/* Ambil data asal */
-	$q1 = mysqli_query($connect,"
-	SELECT * FROM tb_stasiun
-	WHERE id_stasiun='$id_stasiun_asal'
-	");
+	$q1 = mysqli_query($connect,"SELECT * FROM tb_stasiun WHERE id_stasiun='$id_stasiun_asal'");
 	$a = mysqli_fetch_assoc($q1);
 
 	/* Ambil data tujuan */
-	$q2 = mysqli_query($connect,"
-	SELECT * FROM tb_stasiun
-	WHERE id_stasiun='$tujuan'
-	");
+	$q2 = mysqli_query($connect,"SELECT * FROM tb_stasiun WHERE id_stasiun='$tujuan'");
 	$t = mysqli_fetch_assoc($q2);
 
 	/* Cek line */
 	if($a['id_line'] == $t['id_line']){
+		// === SAME LINE ===
+		$jarak = abs($a['km_posisi'] - $t['km_posisi']);
+	} else {
+		// === BEDA LINE ===
+		// Cari stasiun transit
 
-	// === SAME LINE ===
-	$jarak = abs($a['km_posisi'] - $t['km_posisi']);
+		$qt1 = mysqli_query($connect,"
+			SELECT * FROM tb_stasiun
+			WHERE id_line='$a[id_line]'
+			AND is_transit='1'
+			LIMIT 1
+		");
+		$transit_asal = mysqli_fetch_assoc($qt1);
 
-	}else{
+		$qt2 = mysqli_query($connect,"
+			SELECT * FROM tb_stasiun
+			WHERE id_line='$t[id_line]'
+			AND is_transit='1'
+			LIMIT 1
+		");
+		$transit_tujuan = mysqli_fetch_assoc($qt2);
 
-	// === BEDA LINE ===
-	// Cari stasiun transit
+		// Hitung jarak
+		$jarak1 = abs(
+			$a['km_posisi'] -
+			$transit_asal['km_posisi']
+		);
 
-	$qt1 = mysqli_query($connect,"
-		SELECT * FROM tb_stasiun
-		WHERE id_line='$a[id_line]'
-		AND is_transit='1'
-		LIMIT 1
-	");
-	$transit_asal = mysqli_fetch_assoc($qt1);
+		$jarak2 = abs(
+			$t['km_posisi'] -
+			$transit_tujuan['km_posisi']
+		);
 
-	$qt2 = mysqli_query($connect,"
-		SELECT * FROM tb_stasiun
-		WHERE id_line='$t[id_line]'
-		AND is_transit='1'
-		LIMIT 1
-	");
-	$transit_tujuan = mysqli_fetch_assoc($qt2);
-
-	// Hitung jarak
-	$jarak1 = abs(
-		$a['km_posisi'] -
-		$transit_asal['km_posisi']
-	);
-
-	$jarak2 = abs(
-		$t['km_posisi'] -
-		$transit_tujuan['km_posisi']
-	);
-
-	$jarak = $jarak1 + $jarak2;
+		$jarak = $jarak1 + $jarak2;
 	}
 
 	/* Hitung tarif */
