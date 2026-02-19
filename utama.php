@@ -59,7 +59,7 @@
 			<div class="card">
 				<div class="card-body">
 					<h4 class="card-title">KRL Commuter Line</h4>
-					<p class="card-text">Layanan kereta api komuter yang melayani rute di wilayah Jabodetabek (fitur ini segera hadir)</p>
+					<p class="card-text">Layanan kereta api komuter yang melayani rute di wilayah Jabodetabek.</p>
 					<?php
 					if($user['status'] == "3"){
 						?>
@@ -258,8 +258,8 @@
 $kartu1 = $_POST['pilih_kartu_1'] ?? '';
 $kartu2 = $_POST['pilih_kartu_2'] ?? '';
 $kartu3 = $_POST['pilih_kartu_3'] ?? '';
-$stasiun1 = $_POST['pilih_stasiun_1'] ?? '';
-$stasiun2 = $_POST['pilih_stasiun_2'] ?? '';
+$stasiun1 = $_POST['stasiun_asal'] ?? '';
+$stasiun2 = $_POST['stasiun_tujuan'] ?? '';
 
 /*echo "<pre>";
 print_r($_POST);
@@ -399,7 +399,7 @@ if(isset($_POST['tap_out_tj'])){
 	$id_trx = $trx['id_trx'];
 
 	mysqli_query($connect,
-	"UPDATE tb_riwayat_trx_tj SET jenis_trx='Selesai', saldo_akhir='$saldo_baru', waktu_trx_akhir=NOW()	WHERE id_trx='$id_trx'");
+	"UPDATE tb_riwayat_trx_tj SET jenis_trx='Selesai', saldo_akhir='$saldo_baru', waktu_trx_akhir=NOW(), stasiun_tujuan='$stasiun2' WHERE id_trx='$id_trx'");
 
 	/* RIWAYAT KARTU (BANK) */
 	$bank = $datakartu['bank'];
@@ -484,20 +484,10 @@ if(isset($_POST['tap_out_krl'])){
 		// === BEDA LINE ===
 		// Cari stasiun transit
 
-		$qt1 = mysqli_query($connect,"
-			SELECT * FROM tb_stasiun
-			WHERE id_line='$a[id_line]'
-			AND is_transit='1'
-			LIMIT 1
-		");
+		$qt1 = mysqli_query($connect,"SELECT * FROM tb_stasiun WHERE id_line='$a[id_line]' AND is_transit='1' LIMIT 1");
 		$transit_asal = mysqli_fetch_assoc($qt1);
 
-		$qt2 = mysqli_query($connect,"
-			SELECT * FROM tb_stasiun
-			WHERE id_line='$t[id_line]'
-			AND is_transit='1'
-			LIMIT 1
-		");
+		$qt2 = mysqli_query($connect,"SELECT * FROM tb_stasiun WHERE id_line='$t[id_line]' AND is_transit='1' LIMIT 1");
 		$transit_tujuan = mysqli_fetch_assoc($qt2);
 
 		// Hitung jarak
@@ -515,13 +505,15 @@ if(isset($_POST['tap_out_krl'])){
 	}
 
 	/* Hitung tarif */
-	$tarif_awal   = 3000;
-	$tarif_per_km = 1000;
+	 $tarif_dasar = 3000;
 
-	$tarif = $tarif_awal + ($jarak * $tarif_per_km);
-
-	echo "Total jarak: $jarak km <br>";
-	echo "Tarif: Rp ".number_format($tarif);
+	if($jarak <= 25000){
+		$tarif = $tarif_dasar;
+	} else {
+		$sisa_jarak = $jarak - 25000;
+		$blok = ceil($sisa_jarak / 10000);
+		$tarif = $tarif_dasar + ($blok * 1000);
+	}
 
 	$saldo_baru = $saldo - $tarif;
 
@@ -551,13 +543,13 @@ if(isset($_POST['tap_out_krl'])){
 		$tabel="tb_riwayat_kartu_dki";
 	}
 
-	mysqli_query($connect,"INSERT INTO $tabel (id_trx,id_merchant,id_kartu,jenis_trx,saldo_awal,nominal_trx,saldo_akhir,waktu_trx) VALUES ('$id_trx_kartu','1','$kartu1','Out','$saldo','$tarif','$saldo_baru',NOW())") or die(mysqli_error($connect));
+	mysqli_query($connect,"INSERT INTO $tabel (id_trx,id_merchant,id_kartu,jenis_trx,saldo_awal,nominal_trx,saldo_akhir,waktu_trx) VALUES ('$id_trx_kartu','1','$kartu3','Out','$saldo','$tarif','$saldo_baru',NOW())") or die(mysqli_error($connect));
 
 	/* UPDATE STATUS USER  */
 	mysqli_query($connect,"UPDATE tb_user SET status='0', id_kartu=NULL WHERE id_user='1'");
 
 	echo "<script>
-	alert('Tap Out berhasil. Saldo terpotong Rp 3.500,- . Saldo Anda sekarang: Rp ".number_format($saldo_baru, 0, ",", ".")."');
+	alert('Tap Out berhasil. Saldo terpotong Rp ".number_format($tarif, 0, ",", ".")." . Saldo Anda sekarang: Rp ".number_format($saldo_baru, 0, ",", ".")."');
 	window.location='';
 	</script>";
 }
