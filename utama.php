@@ -60,7 +60,21 @@
 				<div class="card-body">
 					<h4 class="card-title">KRL Commuter Line</h4>
 					<p class="card-text">Layanan kereta api komuter yang melayani rute di wilayah Jabodetabek (fitur ini segera hadir)</p>
-					<a href="#" class="btn btn-primary">Masuk Stasiun</a>
+					<?php
+					if($user['status'] == "3"){
+						?>
+						<a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#formKRL">Keluar Stasiun</a>
+						<?php
+					} else if($user['status'] == "0"){
+						?>
+						<a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#formKRL">Masuk Stasiun</a>
+						<?php
+					} else {
+						?>
+						<a href="#" class="btn btn-secondary disabled">Sedang di kereta</a>
+						<?php
+					}
+					?>
 				</div>
 				<img class="card-img-bottom" src="img/commuter_line.jpg" alt="Foto KRL Commuter Line">
 			</div>
@@ -166,10 +180,87 @@
 	</div>
 </div>
 
-<?php
+<!-- Modal Commuter Line-->
+<div class="modal fade" id="formKRL" tabindex="-1" aria-labelledby="formKRLLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
 
+			<!-- Header -->
+			<div class="modal-header">
+			<h5 class="modal-title" id="formKRLLabel">Masuk Stasiun</h5>
+			<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+
+			<!-- Body / Form -->
+			<div class="modal-body">
+			<form action="" method="post" enctype="multipart/form-data">
+				<label for="sel1" class="form-label">Pilih kartu:</label>	
+				<select class="form-select" id="kartu3" name="pilih_kartu_3">
+					<option value="">--Pilih kartu--</option>
+					<?php 
+					$sqlkartu = mysqli_query($connect, "SELECT * FROM tb_kartu") or die(mysqli_error($connect));
+					while ($data = mysqli_fetch_array($sqlkartu)):;
+					?>
+						<option value="<?php echo $data['id_kartu'];?>"><?php echo $data['nama_kartu'];?></option>
+					<?php 
+						endwhile;
+					?>
+				</select>
+				<br>
+				<?php
+				if($user['status'] == "3"){
+					?>
+					<label for="sel2" class="form-label">Stasiun tujuan:</label>	
+					<select name="stasiun_tujuan" class="form-select">
+						<option value="">-- Pilih Stasiun --</option>
+						<?php
+							$q = mysqli_query($connect,"SELECT MIN(id_stasiun) id, nama_stasiun FROM tb_stasiun GROUP BY nama_stasiun ORDER BY id_stasiun") or die(mysqli_error($connect));
+							while($d = mysqli_fetch_assoc($q)){?>
+								<option value="<?= $d['id']; ?>"><?= $d['nama_stasiun']; ?></option>
+						<?php } ?>
+					</select>
+				<?php } else { ?>
+					<label for="sel2" class="form-label">Stasiun awal:</label>	
+					<select name="stasiun_asal" class="form-select">
+						<option value="">-- Pilih Stasiun --</option>
+						<?php
+							$q = mysqli_query($connect,"SELECT MIN(id_stasiun) id, nama_stasiun FROM tb_stasiun GROUP BY nama_stasiun ORDER BY id_stasiun") or die(mysqli_error($connect));
+							while($d = mysqli_fetch_assoc($q)){
+							?>
+							<option value="<?= $d['id']; ?>"><?= $d['nama_stasiun']; ?></option>
+						<?php } ?>
+					</select>
+				<?php } ?>
+				<br>
+			</div>
+
+			<!-- Footer -->
+			<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+			<?php
+				if($user['status'] == "3"){
+					?>
+					<button type="submit" class="btn btn-danger" name="tap_out_krl">Tap Out</button>
+					<?php
+				} else if($user['status'] == "0"){
+					?>
+					<button type="submit" class="btn btn-success" name="tap_in_krl">Tap In</button>
+					<?php
+				}
+			?>
+			</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<?php
 $kartu1 = $_POST['pilih_kartu_1'] ?? '';
 $kartu2 = $_POST['pilih_kartu_2'] ?? '';
+$kartu3 = $_POST['pilih_kartu_3'] ?? '';
+$stasiun1 = $_POST['pilih_stasiun_1'] ?? '';
+$stasiun2 = $_POST['pilih_stasiun_2'] ?? '';
+
 /*echo "<pre>";
 print_r($_POST);
 echo "</pre>";*/
@@ -245,6 +336,30 @@ if(isset($_POST['tap_in_tp'])){
 	}
 }
 
+/* =========================   TAP IN COMMUTER LINE  ========================= */
+if(isset($_POST['tap_in_krl'])){
+
+	$q = mysqli_query($connect,"SELECT * FROM tb_kartu WHERE id_kartu='$kartu3'");
+	$datakartu = mysqli_fetch_assoc($q);
+
+	$saldo = $datakartu['saldo'];
+	$nama_kartu = $datakartu['nama_kartu'];
+
+	// Minimal saldo hanya untuk validasi masuk
+	if($saldo < 5000){
+	echo "<script>alert('Saldo Anda tidak cukup!');</script>";
+	} else {
+	$id_trx = uniqid("KRL-");
+	mysqli_query($connect,"INSERT INTO tb_riwayat_trx_krl (id_trx,id_kartu,id_stasiun_awal,jenis_trx,saldo_awal,waktu_trx_awal) VALUES ('$id_trx','$kartu3','$stasiun1','Proses','$saldo',NOW())");
+	mysqli_query($connect,"UPDATE tb_user SET status='3', id_kartu='$kartu3' WHERE id_user='1'");
+	mysqli_query($connect,"UPDATE tb_user_krl SET id_stasiun='$stasiun1' WHERE id_user='1'");
+
+	echo "<script>
+		alert('Berhasil Tap In Commuter Line dengan kartu $nama_kartu. Saldo Anda sekarang: Rp ".number_format($saldo, 0, ",", ".")."');
+		window.location='';
+	</script>";
+	}
+}
 
 /* =========================   TAP OUT TRANS JAKARTA   ========================= */
 if(isset($_POST['tap_out_tj'])){
@@ -309,7 +424,7 @@ if(isset($_POST['tap_out_tj'])){
 	alert('Tap Out berhasil. Saldo terpotong Rp 3.500,- . Saldo Anda sekarang: Rp ".number_format($saldo_baru, 0, ",", ".")."');
 	window.location='';
 	</script>";
-	}
+}
 
 	/* =========================   TAP OUT TRANS PAKUAN  ========================= */
 	if(isset($_POST['tap_out_tp'])){
@@ -319,6 +434,139 @@ if(isset($_POST['tap_out_tj'])){
 
 	echo "<script>
 	alert('Berhasil turun dari bus');
+	window.location='';
+	</script>";
+}
+
+/* =========================   TAP OUT COMMUTER LINE   ========================= */
+if(isset($_POST['tap_out_krl'])){
+
+	if($kartu3 == "" || $kartu3 == NULL){
+		echo "<script>alert('Silakan pilih kartu terlebih dahulu');</script>";
+		exit;
+	}
+
+	if($user['id_kartu'] != $kartu3){
+		echo "<script>alert('Kartu yang Anda gunakan ini tidak sesuai dengan kartu yang digunakan saat Tap In');</script>";
+		exit;
+	}
+
+	$querykartu = mysqli_query($connect,"SELECT * FROM tb_kartu WHERE id_kartu='$kartu3'");
+	$datakartu = mysqli_fetch_assoc($querykartu);
+
+	$saldo = $datakartu['saldo'];
+	$nama_kartu = $datakartu['nama_kartu'];
+
+
+	if($saldo < 5000){
+		echo "<script>alert('Saldo Anda tidak cukup!');</script>";
+		exit;
+	}
+	
+	/* CARI STASIUN ASAL DARI TB_USER_KRL */
+	$querytrip = mysqli_query($connect,"SELECT * FROM tb_user_krl WHERE id_user='1'") or die(mysqli_error($connect));
+	$datatrip = mysqli_fetch_assoc($querytrip);
+	$id_stasiun_asal = $datatrip['id_stasiun'];
+
+	/* Ambil data asal */
+	$q1 = mysqli_query($connect,"
+	SELECT * FROM tb_stasiun
+	WHERE id_stasiun='$id_stasiun_asal'
+	");
+	$a = mysqli_fetch_assoc($q1);
+
+	/* Ambil data tujuan */
+	$q2 = mysqli_query($connect,"
+	SELECT * FROM tb_stasiun
+	WHERE id_stasiun='$tujuan'
+	");
+	$t = mysqli_fetch_assoc($q2);
+
+	/* Cek line */
+	if($a['id_line'] == $t['id_line']){
+
+	// === SAME LINE ===
+	$jarak = abs($a['km_posisi'] - $t['km_posisi']);
+
+	}else{
+
+	// === BEDA LINE ===
+	// Cari stasiun transit
+
+	$qt1 = mysqli_query($connect,"
+		SELECT * FROM tb_stasiun
+		WHERE id_line='$a[id_line]'
+		AND is_transit='1'
+		LIMIT 1
+	");
+	$transit_asal = mysqli_fetch_assoc($qt1);
+
+	$qt2 = mysqli_query($connect,"
+		SELECT * FROM tb_stasiun
+		WHERE id_line='$t[id_line]'
+		AND is_transit='1'
+		LIMIT 1
+	");
+	$transit_tujuan = mysqli_fetch_assoc($qt2);
+
+	// Hitung jarak
+	$jarak1 = abs(
+		$a['km_posisi'] -
+		$transit_asal['km_posisi']
+	);
+
+	$jarak2 = abs(
+		$t['km_posisi'] -
+		$transit_tujuan['km_posisi']
+	);
+
+	$jarak = $jarak1 + $jarak2;
+	}
+
+	/* Hitung tarif */
+	$tarif_awal   = 3000;
+	$tarif_per_km = 1000;
+
+	$tarif = $tarif_awal + ($jarak * $tarif_per_km);
+
+	echo "Total jarak: $jarak km <br>";
+	echo "Tarif: Rp ".number_format($tarif);
+
+	$saldo_baru = $saldo - $tarif;
+
+	/* UPDATE SALDO KARTU */
+	mysqli_query($connect,"UPDATE tb_kartu SET saldo='$saldo_baru' WHERE id_kartu='$kartu3'");
+
+	/* UPDATE RIWAYAT TJ */
+	$qtrx = mysqli_query($connect,"SELECT * FROM tb_riwayat_trx_krl WHERE id_kartu='$kartu3' AND jenis_trx='Proses' ORDER BY waktu_trx_awal DESC LIMIT 1");
+
+	$trx = mysqli_fetch_assoc($qtrx);
+	$id_trx = $trx['id_trx'];
+
+	mysqli_query($connect,
+	"UPDATE tb_riwayat_trx_krl SET jenis_trx='Selesai', saldo_akhir='$saldo_baru', waktu_trx_akhir=NOW() WHERE id_trx='$id_trx'");
+
+	/* RIWAYAT KARTU (BANK) */
+	$bank = $datakartu['bank'];
+	$id_trx_kartu = uniqid();
+
+	if($bank=="BBRI"){
+		$tabel="tb_riwayat_kartu_bri";
+	} else if($bank=="BBCA"){
+		$tabel="tb_riwayat_kartu_bca";
+	} else if($bank=="BMRI"){
+		$tabel="tb_riwayat_kartu_mri";
+	} else if($bank=="BDKI"){
+		$tabel="tb_riwayat_kartu_dki";
+	}
+
+	mysqli_query($connect,"INSERT INTO $tabel (id_trx,id_merchant,id_kartu,jenis_trx,saldo_awal,nominal_trx,saldo_akhir,waktu_trx) VALUES ('$id_trx_kartu','1','$kartu1','Out','$saldo','$tarif','$saldo_baru',NOW())") or die(mysqli_error($connect));
+
+	/* UPDATE STATUS USER  */
+	mysqli_query($connect,"UPDATE tb_user SET status='0', id_kartu=NULL WHERE id_user='1'");
+
+	echo "<script>
+	alert('Tap Out berhasil. Saldo terpotong Rp 3.500,- . Saldo Anda sekarang: Rp ".number_format($saldo_baru, 0, ",", ".")."');
 	window.location='';
 	</script>";
 }
