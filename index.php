@@ -30,9 +30,9 @@ session_start();
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Riwayat</a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="?page=riwayat_kartu">Transaksi Kartu</a></li>
+            <li><a class="dropdown-item" href="?page=riwayat_krl">Transaksi Commuter Line</a></li>
             <li><a class="dropdown-item" href="?page=riwayat_tp">Transaksi Trans Pakuan</a></li>
-			<li><a class="dropdown-item" href="?page=riwayat_tj">Transaksi Trans Jakarta</a></li>
+			      <li><a class="dropdown-item" href="?page=riwayat_tj">Transaksi Trans Jakarta</a></li>
           </ul>
         </li>
         <li class="nav-item dropdown">

@@ -27,11 +27,11 @@
 		}
 	} else if($page == "riwayat_cl"){
 		if($action == ""){
-			include "inc/riwayat/riwayat_cl.php";
+			include "inc/riwayat/riwayat_krl.php";
 		} else if($action == "hapus"){
-			include "inc/riwayat/hapus_riwayat_cl.php";
+			include "inc/riwayat/hapus_riwayat_krl.php";
 		} else if($action == "cetak"){
-			include "inc/riwayat/cetak_riwayat_cl.php";
+			include "inc/riwayat/cetak_riwayat_krl.php";
 		}
 	} else if($page == "list_kartu"){
 		if($action == ""){

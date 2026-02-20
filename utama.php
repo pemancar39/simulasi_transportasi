@@ -21,7 +21,7 @@
 						<?php
 					} else {
 						?>
-						<a href="#" class="btn btn-secondary disabled">Sedang di bus</a>
+						<a href="#" class="btn btn-secondary disabled">Tidak bisa naik</a>
 						<?php
 					}
 					?>
@@ -46,7 +46,7 @@
 						<?php
 					} else {
 						?>
-						<a href="#" class="btn btn-secondary disabled">Sedang di bus</a>
+						<a href="#" class="btn btn-secondary disabled">Tidak bisa naik</a>
 						<?php
 					}
 					?>
@@ -71,7 +71,7 @@
 						<?php
 					} else {
 						?>
-						<a href="#" class="btn btn-secondary disabled">Sedang di kereta</a>
+						<a href="#" class="btn btn-secondary disabled">Tidak bisa naik</a>
 						<?php
 					}
 					?>
@@ -323,6 +323,8 @@ if(isset($_POST['tap_in_tp'])){
 		$tabel="tb_riwayat_kartu_mri";
 	} else if($bank=="BDKI"){
 		$tabel="tb_riwayat_kartu_dki";
+	} else if($bank=="KCI"){
+		$tabel="tb_riwayat_kartu_kmt";
 	}
 
 	mysqli_query($connect,"INSERT INTO $tabel (id_trx,id_merchant,id_kartu,jenis_trx,saldo_awal,nominal_trx,saldo_akhir,waktu_trx) VALUES ('$id_trx_kartu','1','$kartu2','Out','$saldo','$tarif','$saldo_baru',NOW())");
@@ -339,6 +341,11 @@ if(isset($_POST['tap_in_tp'])){
 /* =========================   TAP IN COMMUTER LINE  ========================= */
 if(isset($_POST['tap_in_krl'])){
 
+	if($stasiun1 == NULL){
+		echo "<script>alert('Silakan pilih stasiun terlebih dahulu');</script>";
+		exit;
+	}
+
 	$q = mysqli_query($connect,"SELECT * FROM tb_kartu WHERE id_kartu='$kartu3'");
 	$datakartu = mysqli_fetch_assoc($q);
 
@@ -350,7 +357,7 @@ if(isset($_POST['tap_in_krl'])){
 	echo "<script>alert('Saldo Anda tidak cukup!');</script>";
 	} else {
 	$id_trx = uniqid("KRL-");
-	mysqli_query($connect,"INSERT INTO tb_riwayat_trx_krl (id_trx,id_kartu,id_stasiun_awal,jenis_trx,saldo_awal,waktu_trx_awal) VALUES ('$id_trx','$kartu3','$stasiun1','Proses','$saldo',NOW())");
+	mysqli_query($connect,"INSERT INTO tb_riwayat_trx_krl (id_trx,id_kartu,stasiun_awal,jenis_trx,saldo_awal,waktu_trx_awal) VALUES ('$id_trx','$kartu3','$stasiun1','Proses','$saldo',NOW())");
 	mysqli_query($connect,"UPDATE tb_user SET status='3', id_kartu='$kartu3' WHERE id_user='1'");
 	mysqli_query($connect,"UPDATE tb_user_krl SET id_stasiun='$stasiun1' WHERE id_user='1'");
 
@@ -363,6 +370,7 @@ if(isset($_POST['tap_in_krl'])){
 
 /* =========================   TAP OUT TRANS JAKARTA   ========================= */
 if(isset($_POST['tap_out_tj'])){
+
 
 	if($kartu1 == "" || $kartu1 == NULL){
 		echo "<script>alert('Silakan pilih kartu terlebih dahulu');</script>";
@@ -413,6 +421,8 @@ if(isset($_POST['tap_out_tj'])){
 		$tabel="tb_riwayat_kartu_mri";
 	} else if($bank=="BDKI"){
 		$tabel="tb_riwayat_kartu_dki";
+	} else if($bank=="KCI"){
+		$tabel="tb_riwayat_kartu_kmt";
 	}
 
 	mysqli_query($connect,"INSERT INTO $tabel (id_trx,id_merchant,id_kartu,jenis_trx,saldo_awal,nominal_trx,saldo_akhir,waktu_trx) VALUES ('$id_trx_kartu','1','$kartu1','Out','$saldo','$tarif','$saldo_baru',NOW())") or die(mysqli_error($connect));
@@ -429,8 +439,7 @@ if(isset($_POST['tap_out_tj'])){
 	/* =========================   TAP OUT TRANS PAKUAN  ========================= */
 	if(isset($_POST['tap_out_tp'])){
 
-	mysqli_query($connect,
-	"UPDATE tb_user	SET status='0', id_kartu=NULL WHERE id_user='1'");
+	mysqli_query($connect,"UPDATE tb_user SET status='0', id_kartu=NULL WHERE id_user='1'");
 
 	echo "<script>
 	alert('Berhasil turun dari bus');
@@ -443,6 +452,11 @@ if(isset($_POST['tap_out_krl'])){
 
 	if($kartu3 == "" || $kartu3 == NULL){
 		echo "<script>alert('Silakan pilih kartu terlebih dahulu');</script>";
+		exit;
+	}
+
+	if($stasiun2 == NULL){
+		echo "<script>alert('Silakan pilih stasiun terlebih dahulu');</script>";
 		exit;
 	}
 
@@ -469,11 +483,11 @@ if(isset($_POST['tap_out_krl'])){
 	$id_stasiun_asal = $datatrip['id_stasiun'];
 
 	/* Ambil data asal */
-	$q1 = mysqli_query($connect,"SELECT * FROM tb_stasiun WHERE id_stasiun='$id_stasiun_asal'");
+	$q1 = mysqli_query($connect,"SELECT * FROM tb_stasiun WHERE id_stasiun='$id_stasiun_asal'") or die(mysqli_error($connect));
 	$a = mysqli_fetch_assoc($q1);
 
 	/* Ambil data tujuan */
-	$q2 = mysqli_query($connect,"SELECT * FROM tb_stasiun WHERE id_stasiun='$tujuan'");
+	$q2 = mysqli_query($connect,"SELECT * FROM tb_stasiun WHERE id_stasiun='$stasiun2'") or die(mysqli_error($connect));
 	$t = mysqli_fetch_assoc($q2);
 
 	/* Cek line */
@@ -520,14 +534,13 @@ if(isset($_POST['tap_out_krl'])){
 	/* UPDATE SALDO KARTU */
 	mysqli_query($connect,"UPDATE tb_kartu SET saldo='$saldo_baru' WHERE id_kartu='$kartu3'");
 
-	/* UPDATE RIWAYAT TJ */
+	/* UPDATE RIWAYAT KRL */
 	$qtrx = mysqli_query($connect,"SELECT * FROM tb_riwayat_trx_krl WHERE id_kartu='$kartu3' AND jenis_trx='Proses' ORDER BY waktu_trx_awal DESC LIMIT 1");
 
 	$trx = mysqli_fetch_assoc($qtrx);
 	$id_trx = $trx['id_trx'];
 
-	mysqli_query($connect,
-	"UPDATE tb_riwayat_trx_krl SET jenis_trx='Selesai', saldo_akhir='$saldo_baru', waktu_trx_akhir=NOW() WHERE id_trx='$id_trx'");
+	mysqli_query($connect,"UPDATE tb_riwayat_trx_krl SET jenis_trx='Selesai', saldo_akhir='$saldo_baru', stasiun_akhir='$stasiun2', waktu_trx_akhir=NOW() WHERE id_trx='$id_trx'");
 
 	/* RIWAYAT KARTU (BANK) */
 	$bank = $datakartu['bank'];
@@ -541,15 +554,19 @@ if(isset($_POST['tap_out_krl'])){
 		$tabel="tb_riwayat_kartu_mri";
 	} else if($bank=="BDKI"){
 		$tabel="tb_riwayat_kartu_dki";
+	} else if($bank=="KCI"){
+		$tabel="tb_riwayat_kartu_kmt";
 	}
 
 	mysqli_query($connect,"INSERT INTO $tabel (id_trx,id_merchant,id_kartu,jenis_trx,saldo_awal,nominal_trx,saldo_akhir,waktu_trx) VALUES ('$id_trx_kartu','1','$kartu3','Out','$saldo','$tarif','$saldo_baru',NOW())") or die(mysqli_error($connect));
 
 	/* UPDATE STATUS USER  */
 	mysqli_query($connect,"UPDATE tb_user SET status='0', id_kartu=NULL WHERE id_user='1'");
+	mysqli_query($connect,"UPDATE tb_user_krl SET id_stasiun=NULL WHERE id_user='1'");
 
 	echo "<script>
 	alert('Tap Out berhasil. Saldo terpotong Rp ".number_format($tarif, 0, ",", ".")." . Saldo Anda sekarang: Rp ".number_format($saldo_baru, 0, ",", ".")."');
+	alert('Jarak: $jarak meter. Tarif: Rp ".number_format($tarif, 0, ",", ".")."');
 	window.location='';
 	</script>";
 }
