@@ -498,21 +498,20 @@ if(isset($_POST['tap_out_krl'])){
 		// === BEDA LINE ===
 		// Cari stasiun transit
 
-		$qt1 = mysqli_query($connect,"SELECT * FROM tb_stasiun WHERE id_line='$a[id_line]' AND is_transit='1' LIMIT 1");
-		$transit_asal = mysqli_fetch_assoc($qt1);
+		// === CARI TRANSIT DI LINE ASAL YANG PALING DEKAT KE TUJUAN ===
 
-		$qt2 = mysqli_query($connect,"SELECT * FROM tb_stasiun WHERE id_line='$t[id_line]' AND is_transit='1' LIMIT 1");
-		$transit_tujuan = mysqli_fetch_assoc($qt2);
+		$qTransit = mysqli_query($connect,"SELECT s.* FROM tb_transit t	JOIN tb_stasiun s ON s.id_stasiun = t.id_stasiun WHERE t.line_asal   = '{$a['id_line']}' AND t.line_tujuan = '{$t['id_line']}' LIMIT 1") or die(mysqli_error($connect));
+		$transit = mysqli_fetch_assoc($qTransit);
 
 		// Hitung jarak
 		$jarak1 = abs(
 			$a['km_posisi'] -
-			$transit_asal['km_posisi']
+			$transit['km_posisi']
 		);
 
 		$jarak2 = abs(
 			$t['km_posisi'] -
-			$transit_tujuan['km_posisi']
+			$transit['km_posisi']
 		);
 
 		$jarak = $jarak1 + $jarak2;
@@ -566,7 +565,7 @@ if(isset($_POST['tap_out_krl'])){
 
 	echo "<script>
 	alert('Tap Out berhasil. Saldo terpotong Rp ".number_format($tarif, 0, ",", ".")." . Saldo Anda sekarang: Rp ".number_format($saldo_baru, 0, ",", ".")."');
-	alert('Jarak: $jarak meter. Tarif: Rp ".number_format($tarif, 0, ",", ".")."');
+	alert('Perhitungan jarak: $jarak1 + $jarak2 = $jarak meter.');
 	window.location='';
 	</script>";
 }

@@ -86,7 +86,11 @@ if(isset($_POST['top_up'])){
 			} else if($bank=="BDKI"){
 				$tabel="tb_riwayat_kartu_dki";
 				$merchant = '6';
+			} else if($bank=="KCI"){
+				$tabel="tb_riwayat_kartu_kmt";
+				$merchant = '7';
 			}
+
 			mysqli_query($connect,"INSERT INTO $tabel (id_trx,id_merchant,id_kartu,jenis_trx,saldo_awal,nominal_trx,saldo_akhir,waktu_trx) VALUES ('$id_trx_kartu','$merchant','$kartu','In','$saldo','$jumlah','$saldo_baru',NOW())") or die(mysqli_error($connect));
 			echo "<script>alert('Top up kartu berhasil dengan jumlah: Rp ".number_format($jumlah, 0, ",", ".").". Saldo kartu Anda sekarang: Rp ".number_format($saldo_baru, 0, ",", ".")."');
 			window.location='/simulasi_transportasi';</script>";
