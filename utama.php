@@ -267,6 +267,11 @@ echo "</pre>";*/
 /* =========================   TAP IN TRANS JAKARTA  ========================= */
 if(isset($_POST['tap_in_tj'])){
 
+	if($kartu1 == NULL || $kartu1 == "") {
+		echo "<script>alert('Silakan pilih kartu terlebih dahulu');</script>";
+		exit;
+	}
+
 	$q = mysqli_query($connect,"SELECT * FROM tb_kartu WHERE id_kartu='$kartu1'");
 	$datakartu = mysqli_fetch_assoc($q);
 
@@ -289,6 +294,11 @@ if(isset($_POST['tap_in_tj'])){
 
 /* =========================   TAP IN TRANS PAKUAN  ========================= */
 if(isset($_POST['tap_in_tp'])){
+
+	if($kartu2 == NULL || $kartu2 == "") {
+		echo "<script>alert('Silakan pilih kartu terlebih dahulu');</script>";
+		exit;
+	}
 
 	$q = mysqli_query($connect,"SELECT * FROM tb_kartu WHERE id_kartu='$kartu2'");
 	$datakartu = mysqli_fetch_assoc($q);
@@ -341,11 +351,16 @@ if(isset($_POST['tap_in_tp'])){
 /* =========================   TAP IN COMMUTER LINE  ========================= */
 if(isset($_POST['tap_in_krl'])){
 
+	if($kartu3 == NULL || $kartu3 == "") {
+		echo "<script>alert('Silakan pilih kartu terlebih dahulu');</script>";
+		exit;
+	}
+	
 	if($stasiun1 == NULL){
 		echo "<script>alert('Silakan pilih stasiun terlebih dahulu');</script>";
 		exit;
 	}
-
+	
 	$q = mysqli_query($connect,"SELECT * FROM tb_kartu WHERE id_kartu='$kartu3'");
 	$datakartu = mysqli_fetch_assoc($q);
 
@@ -354,23 +369,22 @@ if(isset($_POST['tap_in_krl'])){
 
 	// Minimal saldo hanya untuk validasi masuk
 	if($saldo < 5000){
-	echo "<script>alert('Saldo Anda tidak cukup!');</script>";
+		echo "<script>alert('Saldo Anda tidak cukup!');</script>";
 	} else {
-	$id_trx = uniqid("KRL-");
-	mysqli_query($connect,"INSERT INTO tb_riwayat_trx_krl (id_trx,id_kartu,stasiun_awal,jenis_trx,saldo_awal,waktu_trx_awal) VALUES ('$id_trx','$kartu3','$stasiun1','Proses','$saldo',NOW())");
-	mysqli_query($connect,"UPDATE tb_user SET status='3', id_kartu='$kartu3' WHERE id_user='1'");
-	mysqli_query($connect,"UPDATE tb_user_krl SET id_stasiun='$stasiun1' WHERE id_user='1'");
+		$id_trx = uniqid("KRL-");
+		mysqli_query($connect,"INSERT INTO tb_riwayat_trx_krl (id_trx,id_kartu,stasiun_awal,jenis_trx,saldo_awal,waktu_trx_awal) VALUES ('$id_trx','$kartu3','$stasiun1','Proses','$saldo',NOW())");
+		mysqli_query($connect,"UPDATE tb_user SET status='3', id_kartu='$kartu3' WHERE id_user='1'");
+		mysqli_query($connect,"UPDATE tb_user_krl SET id_stasiun='$stasiun1' WHERE id_user='1'");
 
-	echo "<script>
-		alert('Berhasil Tap In Commuter Line dengan kartu $nama_kartu. Saldo Anda sekarang: Rp ".number_format($saldo, 0, ",", ".")."');
-		window.location='';
-	</script>";
+		echo "<script>
+			alert('Berhasil Tap In Commuter Line dengan kartu $nama_kartu. Saldo Anda sekarang: Rp ".number_format($saldo, 0, ",", ".")."');
+			window.location='';
+		</script>";
 	}
 }
 
 /* =========================   TAP OUT TRANS JAKARTA   ========================= */
 if(isset($_POST['tap_out_tj'])){
-
 
 	if($kartu1 == "" || $kartu1 == NULL){
 		echo "<script>alert('Silakan pilih kartu terlebih dahulu');</script>";
@@ -406,8 +420,7 @@ if(isset($_POST['tap_out_tj'])){
 	$trx = mysqli_fetch_assoc($qtrx);
 	$id_trx = $trx['id_trx'];
 
-	mysqli_query($connect,
-	"UPDATE tb_riwayat_trx_tj SET jenis_trx='Selesai', saldo_akhir='$saldo_baru', waktu_trx_akhir=NOW(), stasiun_tujuan='$stasiun2' WHERE id_trx='$id_trx'");
+	mysqli_query($connect,"UPDATE tb_riwayat_trx_tj SET jenis_trx='Selesai', saldo_akhir='$saldo_baru', waktu_trx_akhir=NOW() WHERE id_trx='$id_trx'");
 
 	/* RIWAYAT KARTU (BANK) */
 	$bank = $datakartu['bank'];
@@ -500,7 +513,7 @@ if(isset($_POST['tap_out_krl'])){
 
 		// === CARI TRANSIT DI LINE ASAL YANG PALING DEKAT KE TUJUAN ===
 
-		$qTransit = mysqli_query($connect,"SELECT s.* FROM tb_transit t	JOIN tb_stasiun s ON s.id_stasiun = t.id_stasiun WHERE t.line_asal   = '{$a['id_line']}' AND t.line_tujuan = '{$t['id_line']}' LIMIT 1") or die(mysqli_error($connect));
+		$qTransit = mysqli_query($connect,"SELECT s.* FROM tb_transit t	JOIN tb_stasiun s ON s.id_stasiun = t.id_stasiun WHERE t.line_asal = '{$a['id_line']}' AND t.line_tujuan = '{$t['id_line']}' LIMIT 1") or die(mysqli_error($connect));
 		$transit = mysqli_fetch_assoc($qTransit);
 
 		// Hitung jarak
@@ -565,7 +578,6 @@ if(isset($_POST['tap_out_krl'])){
 
 	echo "<script>
 	alert('Tap Out berhasil. Saldo terpotong Rp ".number_format($tarif, 0, ",", ".")." . Saldo Anda sekarang: Rp ".number_format($saldo_baru, 0, ",", ".")."');
-	alert('Perhitungan jarak: $jarak1 + $jarak2 = $jarak meter.');
 	window.location='';
 	</script>";
 }

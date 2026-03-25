@@ -30,7 +30,7 @@ session_start();
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Riwayat</a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="?page=riwayat_krl">Transaksi Commuter Line</a></li>
+            <li><a class="dropdown-item" href="?page=riwayat_cl">Transaksi Commuter Line</a></li>
             <li><a class="dropdown-item" href="?page=riwayat_tp">Transaksi Trans Pakuan</a></li>
 			      <li><a class="dropdown-item" href="?page=riwayat_tj">Transaksi Trans Jakarta</a></li>
           </ul>
@@ -38,7 +38,7 @@ session_start();
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Kartu Transportasi</a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="?page=list_kartu">Daftar Kartu</a></li>
+            <li><a class="dropdown-item" href="?page=kartu">Daftar Kartu</a></li>
             <li><a class="dropdown-item" href="?page=topup_kartu">Top Up Kartu</a></li>
           </ul>
         </li>
