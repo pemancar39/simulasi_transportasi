@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.1.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 20, 2026 at 09:28 AM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.0.30
+-- Generation Time: Mar 25, 2026 at 05:37 AM
+-- Server version: 10.4.22-MariaDB
+-- PHP Version: 8.1.2
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -34,17 +34,16 @@ CREATE TABLE `tb_kartu` (
   `saldo` int(11) NOT NULL,
   `khusus` tinyint(1) NOT NULL DEFAULT 0,
   `bank` varchar(4) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `tb_kartu`
 --
 
 INSERT INTO `tb_kartu` (`id_kartu`, `nama_kartu`, `jenis_kartu`, `saldo`, `khusus`, `bank`) VALUES
-(1, 'My Flazz', 'Flazz BCA', 257100, 0, 'BBCA'),
-(2, 'My e-Money', 'e-Money Mandiri', 16700, 0, 'BMRI'),
-(3, 'My Jaklingko', 'Jaklingko Bank DKI', 26500, 1, 'BDKI'),
-(6, 'KMT', 'Kartu Multi Trip KCI', 376000, 0, 'KCI');
+(1, 'My Flazz', 'Flazz BCA', 11200, 0, 'BBCA'),
+(2, 'My e-Money', 'e-Money Mandiri', 21600, 0, 'BMRI'),
+(3, 'My Jaklingko', 'Jaklingko Bank DKI', 26500, 1, 'BDKI');
 
 -- --------------------------------------------------------
 
@@ -55,7 +54,7 @@ INSERT INTO `tb_kartu` (`id_kartu`, `nama_kartu`, `jenis_kartu`, `saldo`, `khusu
 CREATE TABLE `tb_line` (
   `id_line` int(11) NOT NULL,
   `nama_line` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `tb_line`
@@ -80,7 +79,7 @@ INSERT INTO `tb_line` (`id_line`, `nama_line`) VALUES
 CREATE TABLE `tb_merchant` (
   `id_merchant` int(11) NOT NULL,
   `nama_merchant` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `tb_merchant`
@@ -110,7 +109,7 @@ CREATE TABLE `tb_riwayat_kartu_bca` (
   `saldo_akhir` int(11) NOT NULL,
   `id_kartu` int(11) NOT NULL,
   `waktu_trx` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `tb_riwayat_kartu_bca`
@@ -125,29 +124,11 @@ INSERT INTO `tb_riwayat_kartu_bca` (`id_trx`, `id_merchant`, `jenis_trx`, `saldo
 ('6992446524668', 1, 'Out', 40500, 3500, 37000, 1, '2026-02-16 05:10:45'),
 ('6992b00a19f05', 3, 'In', 0, 20000, 0, 1, '2026-02-16 12:50:02'),
 ('6992b2f851533', 1, 'Out', 57000, 0, 52100, 1, '2026-02-16 13:02:32'),
-('6996c3b04bdf8', 1, 'Out', 52100, 3000, 49100, 1, '2026-02-19 15:02:56'),
-('6996c3cf9fbe7', 1, 'Out', 49100, 3000, 46100, 1, '2026-02-19 15:03:27'),
-('6996c4894527a', 1, 'Out', 46100, 3000, 43100, 1, '2026-02-19 15:06:33'),
-('6997b19a89c2d', 1, 'Out', 43100, 3000, 40100, 1, '2026-02-20 07:58:02'),
-('6997b2748260b', 1, 'Out', 40100, 4000, 36100, 1, '2026-02-20 08:01:40'),
-('6997b37f67191', 1, 'Out', 36100, 3000, 33100, 1, '2026-02-20 08:06:07'),
-('6997b3b57b0b8', 1, 'Out', 33100, 3000, 30100, 1, '2026-02-20 08:07:01'),
-('6997b4396db59', 1, 'Out', 30100, 4000, 26100, 1, '2026-02-20 08:09:13'),
-('6997b4a7855bc', 1, 'Out', 26100, 3000, 23100, 1, '2026-02-20 08:11:03'),
-('6997b4daa0cc3', 1, 'Out', 23100, 4000, 19100, 1, '2026-02-20 08:11:54'),
-('6997b5766fe06', 1, 'Out', 19100, 4000, 15100, 1, '2026-02-20 08:14:30'),
-('6997b58535e3f', 1, 'Out', 15100, 6000, 9100, 1, '2026-02-20 08:14:45'),
-('6997b5920c2cf', 3, 'In', 9100, 100000, 109100, 1, '2026-02-20 08:14:58'),
-('6997b5b33f0d6', 1, 'Out', 109100, 6000, 103100, 1, '2026-02-20 08:15:31'),
-('6997d606d4506', 1, 'Out', 103100, 4000, 99100, 1, '2026-02-20 10:33:26'),
-('6997d6f5ac314', 1, 'Out', 99100, 6000, 93100, 1, '2026-02-20 10:37:25'),
-('6997d778de9e1', 1, 'Out', 93100, 4000, 89100, 1, '2026-02-20 10:39:36'),
-('6997dc7cbba2e', 3, 'In', 89100, 200000, 289100, 1, '2026-02-20 11:01:00'),
-('6997e7bd7e876', 1, 'Out', 289100, 3000, 286100, 1, '2026-02-20 11:49:01'),
-('6997f4b577ce6', 1, 'Out', 286100, 6000, 280100, 1, '2026-02-20 12:44:21'),
-('6997fcbd56dbc', 1, 'Out', 280100, 6000, 274100, 1, '2026-02-20 13:18:37'),
-('6997fcdf6ec3d', 1, 'Out', 274100, 10000, 264100, 1, '2026-02-20 13:19:11'),
-('6997fd29087cc', 1, 'Out', 264100, 7000, 257100, 1, '2026-02-20 13:20:25');
+('69c35f43ce88b', 1, 'Out', 31100, 3500, 27600, 1, '2026-03-25 11:06:27'),
+('69c35f635a13a', 1, 'Out', 27600, 3500, 24100, 1, '2026-03-25 11:06:59'),
+('69c35faad4abb', 1, 'Out', 24100, 0, 19200, 1, '2026-03-25 11:08:10'),
+('69c3632f26694', 1, 'Out', 19200, 3000, 16200, 1, '2026-03-25 11:23:11'),
+('69c3636f0cd54', 1, 'Out', 16200, 5000, 11200, 1, '2026-03-25 11:24:15');
 
 -- --------------------------------------------------------
 
@@ -164,7 +145,7 @@ CREATE TABLE `tb_riwayat_kartu_bri` (
   `saldo_akhir` int(11) NOT NULL,
   `id_kartu` int(11) NOT NULL,
   `waktu_trx` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -181,7 +162,7 @@ CREATE TABLE `tb_riwayat_kartu_dki` (
   `saldo_akhir` int(11) NOT NULL,
   `id_kartu` int(11) NOT NULL,
   `waktu_trx` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `tb_riwayat_kartu_dki`
@@ -206,30 +187,7 @@ CREATE TABLE `tb_riwayat_kartu_kmt` (
   `saldo_akhir` int(11) NOT NULL,
   `id_kartu` int(11) NOT NULL,
   `waktu_trx` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `tb_riwayat_kartu_kmt`
---
-
-INSERT INTO `tb_riwayat_kartu_kmt` (`id_trx`, `id_merchant`, `jenis_trx`, `saldo_awal`, `nominal_trx`, `saldo_akhir`, `id_kartu`, `waktu_trx`) VALUES
-('6997d7a3421cf', 1, 'Out', 50000, 4000, 46000, 6, '2026-02-20 10:40:19'),
-('6997d7d5408ac', 1, 'Out', 46000, 4000, 42000, 6, '2026-02-20 10:41:09'),
-('6997dae992c86', 1, 'Out', 42000, 6000, 36000, 6, '2026-02-20 10:54:17'),
-('6997db75e5ec1', 1, 'Out', 36000, 6000, 30000, 6, '2026-02-20 10:56:37'),
-('6997dba3840d4', 1, 'Out', 30000, 7000, 23000, 6, '2026-02-20 10:57:23'),
-('6997dc05c20c1', 1, 'Out', 23000, 5000, 18000, 6, '2026-02-20 10:59:01'),
-('6997dc3abd465', 1, 'Out', 18000, 3000, 15000, 6, '2026-02-20 10:59:54'),
-('6997dca9222a6', 7, 'In', 215000, 200000, 415000, 6, '2026-02-20 11:01:45'),
-('6997dd353063a', 1, 'Out', 415000, 6000, 409000, 6, '2026-02-20 11:04:05'),
-('6997dfcc7bb6f', 1, 'Out', 409000, 3000, 406000, 6, '2026-02-20 11:15:08'),
-('6997dff6c0684', 1, 'Out', 406000, 5000, 401000, 6, '2026-02-20 11:15:50'),
-('6997e0126ab54', 1, 'Out', 401000, 3000, 398000, 6, '2026-02-20 11:16:18'),
-('6997e056efa4b', 1, 'Out', 398000, 3000, 395000, 6, '2026-02-20 11:17:26'),
-('6997e07a88fda', 1, 'Out', 395000, 4000, 391000, 6, '2026-02-20 11:18:02'),
-('6997e0b4a002a', 1, 'Out', 391000, 6000, 385000, 6, '2026-02-20 11:19:00'),
-('6997e13a74234', 1, 'Out', 385000, 3000, 382000, 6, '2026-02-20 11:21:14'),
-('6997f4cfa3228', 1, 'Out', 382000, 6000, 376000, 6, '2026-02-20 12:44:47');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -246,7 +204,7 @@ CREATE TABLE `tb_riwayat_kartu_mri` (
   `saldo_akhir` int(11) NOT NULL,
   `id_kartu` int(11) NOT NULL,
   `waktu_trx` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `tb_riwayat_kartu_mri`
@@ -255,8 +213,7 @@ CREATE TABLE `tb_riwayat_kartu_mri` (
 INSERT INTO `tb_riwayat_kartu_mri` (`id_trx`, `id_merchant`, `jenis_trx`, `saldo_awal`, `nominal_trx`, `saldo_akhir`, `id_kartu`, `waktu_trx`) VALUES
 ('6991d5bf13a74', 1, 'Out', 10000, 0, 5100, 2, '2026-02-15 21:18:39'),
 ('6992b0a702e76', 4, 'In', 5100, 20000, 25100, 2, '2026-02-16 12:52:39'),
-('6992b3136e54d', 1, 'Out', 25100, 3500, 21600, 2, '2026-02-16 13:02:59'),
-('6997b1d91d40d', 1, 'Out', 21600, 0, 16700, 2, '2026-02-20 07:59:05');
+('6992b3136e54d', 1, 'Out', 25100, 3500, 21600, 2, '2026-02-16 13:02:59');
 
 -- --------------------------------------------------------
 
@@ -274,14 +231,14 @@ CREATE TABLE `tb_riwayat_trx_krl` (
   `saldo_akhir` int(11) DEFAULT NULL,
   `stasiun_awal` int(11) NOT NULL,
   `stasiun_akhir` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `tb_riwayat_trx_krl`
 --
 
 INSERT INTO `tb_riwayat_trx_krl` (`id_trx`, `jenis_trx`, `id_kartu`, `waktu_trx_awal`, `waktu_trx_akhir`, `saldo_awal`, `saldo_akhir`, `stasiun_awal`, `stasiun_akhir`) VALUES
-('KRL-6997b26cd1e2', 'Selesai', 1, '2026-02-20 08:01:32', '2026-02-20 08:01:40', 40100, 36100, 1, NULL),
+('KRL-6997b26cd1e2', 'Selesai', 1, '2026-02-20 08:01:32', '2026-02-20 08:01:40', 40100, 36100, 1, 1),
 ('KRL-6997b378c0f0', 'Selesai', 1, '2026-02-20 08:06:00', '2026-02-20 08:06:07', 36100, 33100, 3, 7),
 ('KRL-6997b3a9b874', 'Selesai', 1, '2026-02-20 08:06:49', '2026-02-20 08:07:01', 33100, 30100, 0, 0),
 ('KRL-6997b4327a97', 'Selesai', 1, '2026-02-20 08:09:06', '2026-02-20 08:09:13', 30100, 26100, 1, 17),
@@ -313,7 +270,9 @@ INSERT INTO `tb_riwayat_trx_krl` (`id_trx`, `jenis_trx`, `id_kartu`, `waktu_trx_
 ('KRL-6997f4c62d07', 'Selesai', 6, '2026-02-20 12:44:38', '2026-02-20 12:44:47', 382000, 376000, 1, 46),
 ('KRL-6997fcb730e9', 'Selesai', 1, '2026-02-20 13:18:31', '2026-02-20 13:18:37', 280100, 274100, 24, 1),
 ('KRL-6997fcd4c552', 'Selesai', 1, '2026-02-20 13:19:00', '2026-02-20 13:19:11', 274100, 264100, 1, 35),
-('KRL-6997fd1f7e8f', 'Selesai', 1, '2026-02-20 13:20:15', '2026-02-20 13:20:25', 264100, 257100, 1, 46);
+('KRL-6997fd1f7e8f', 'Selesai', 1, '2026-02-20 13:20:15', '2026-02-20 13:20:25', 264100, 257100, 1, 46),
+('KRL-69c36324def9', 'Selesai', 1, '2026-03-25 11:23:00', '2026-03-25 11:23:11', 19200, 16200, 1, 3),
+('KRL-69c3635f076e', 'Selesai', 1, '2026-03-25 11:23:59', '2026-03-25 11:24:15', 16200, 11200, 1, 17);
 
 -- --------------------------------------------------------
 
@@ -329,7 +288,7 @@ CREATE TABLE `tb_riwayat_trx_tj` (
   `waktu_trx_akhir` datetime DEFAULT NULL,
   `saldo_awal` int(11) NOT NULL,
   `saldo_akhir` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `tb_riwayat_trx_tj`
@@ -343,7 +302,9 @@ INSERT INTO `tb_riwayat_trx_tj` (`id_trx`, `jenis_trx`, `id_kartu`, `waktu_trx_a
 ('TJ-699242310ae7b', 'Selesai', 1, '2026-02-16 05:01:21', '2026-02-16 05:01:26', 48900, 45400),
 ('TJ-699244557650f', 'Selesai', 1, '2026-02-16 05:10:29', '2026-02-16 05:10:45', 40500, 37000),
 ('TJ-6992b307ade6b', 'Selesai', 2, '2026-02-16 13:02:47', '2026-02-16 13:02:59', 25100, 21600),
-('TJ-6992b38b82674', 'Selesai', 3, '2026-02-16 13:04:59', '2026-02-16 13:05:04', 30000, 26500);
+('TJ-6992b38b82674', 'Selesai', 3, '2026-02-16 13:04:59', '2026-02-16 13:05:04', 30000, 26500),
+('TJ-69c35db21b014', 'Selesai', 1, '2026-03-25 10:59:46', '2026-03-25 11:06:27', 52100, 27600),
+('TJ-69c35f4b45522', 'Selesai', 1, '2026-03-25 11:06:35', '2026-03-25 11:06:59', 27600, 24100);
 
 -- --------------------------------------------------------
 
@@ -357,7 +318,7 @@ CREATE TABLE `tb_riwayat_trx_tp` (
   `waktu_trx` datetime NOT NULL,
   `saldo_awal` int(11) NOT NULL,
   `saldo_akhir` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `tb_riwayat_trx_tp`
@@ -369,7 +330,7 @@ INSERT INTO `tb_riwayat_trx_tp` (`id_trx`, `id_kartu`, `waktu_trx`, `saldo_awal`
 ('TP-6991d68364508', 1, '2026-02-15 21:21:55', 53800, 48900),
 ('TP-6992437c8ebd5', 1, '2026-02-16 05:06:52', 45400, 40500),
 ('TP-6992b2f84f79a', 1, '2026-02-16 13:02:32', 57000, 52100),
-('TP-6997b1d91c4d0', 2, '2026-02-20 07:59:05', 21600, 16700);
+('TP-69c35faad2889', 1, '2026-03-25 11:08:10', 24100, 19200);
 
 -- --------------------------------------------------------
 
@@ -384,7 +345,7 @@ CREATE TABLE `tb_stasiun` (
   `km_posisi` int(11) NOT NULL,
   `is_transit` int(11) NOT NULL,
   `kode_stasiun` varchar(4) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `tb_stasiun`
@@ -464,7 +425,7 @@ CREATE TABLE `tb_transit` (
   `line_asal` int(11) NOT NULL,
   `line_tujuan` int(11) NOT NULL,
   `id_stasiun` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `tb_transit`
@@ -493,7 +454,7 @@ CREATE TABLE `tb_user` (
   `nama` varchar(100) DEFAULT NULL,
   `status` enum('0','1','2','3') NOT NULL DEFAULT '0',
   `id_kartu` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `tb_user`
@@ -511,13 +472,14 @@ INSERT INTO `tb_user` (`id_user`, `nama`, `status`, `id_kartu`) VALUES
 CREATE TABLE `tb_user_krl` (
   `id_user` int(11) NOT NULL,
   `id_stasiun` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `tb_user_krl`
 --
 
 INSERT INTO `tb_user_krl` (`id_user`, `id_stasiun`) VALUES
+(1, NULL),
 (1, NULL);
 
 --
@@ -709,12 +671,6 @@ ALTER TABLE `tb_riwayat_kartu_kmt`
 ALTER TABLE `tb_riwayat_kartu_mri`
   ADD CONSTRAINT `tb_riwayat_kartu_mri_FK` FOREIGN KEY (`id_kartu`) REFERENCES `tb_kartu` (`id_kartu`),
   ADD CONSTRAINT `tb_riwayat_kartu_mri_FK_1` FOREIGN KEY (`id_merchant`) REFERENCES `tb_merchant` (`id_merchant`);
-
---
--- Constraints for table `tb_riwayat_trx_krl`
---
-ALTER TABLE `tb_riwayat_trx_krl`
-  ADD CONSTRAINT `tb_riwayat_trx_tj_FK_copy` FOREIGN KEY (`id_kartu`) REFERENCES `tb_kartu` (`id_kartu`);
 
 --
 -- Constraints for table `tb_riwayat_trx_tj`
